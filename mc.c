@@ -49,9 +49,17 @@ void enableRawMode(){
     struct termios raw = original_termios;
     raw.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+    printf("\033[?1049h");
+    printf("\033[?251");
+    fflush(stdout);
 }
 
 void disableRawMode(){
+
+    printf("\033[?10491");
+    printf("\033[?25h");
+    fflush(stdout);
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
 }
@@ -103,7 +111,7 @@ int main(){
             }
             int pin = keyToPin(c);
             if(pin != -1){
-                portA.pins[pin].state = HIGH;
+                portA.pins[pin].state = (portA.pins[pin].state == LOW) ? HIGH : LOW;
             }
         }
 
@@ -123,11 +131,13 @@ int main(){
 
             if(portA.pins[i].mode == OUTPUT){
 
-                printf("LED %d: %s\t", i, portA.pins[i].state == HIGH ? "ON" : "OFF");
+                printf("LED %d: %-3s\t", i, portA.pins[i].state == HIGH ? "ON" : "OFF");
             }
         }
         printf("\r");
         fflush(stdout);
+
+        usleep(50000);
     }
 
     return 0;
